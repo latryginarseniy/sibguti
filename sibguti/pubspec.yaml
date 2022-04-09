@@ -29,7 +29,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  hive: ^2.0.6
+  hive_flutter: ^1.1.0
+  date_picker_timeline: ^1.2.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -38,7 +40,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  hive_generator: ^1.1.2
+  build_runner: ^2.1.8
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -57,6 +60,34 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+      - family: MontserratBlack
+        fonts:
+          - asset: fonts/Montserrat-Black.ttf
+      - family: MontserratBold
+        fonts:
+          - asset: fonts/Montserrat-Bold.ttf
+      - family: MontserratExtraBold
+        fonts:
+          - asset: fonts/Montserrat-ExtraBold.ttf
+      - family: MontserratExtraLight
+        fonts:
+          - asset: fonts/Montserrat-ExtraLight.ttf
+      - family: MontserratLight
+        fonts:
+          - asset: fonts/Montserrat-Light.ttf
+      - family: MontserratMedium
+        fonts:
+          - asset: fonts/Montserrat-Medium.ttf
+      - family: MontserratRegular
+        fonts:
+          - asset: fonts/Montserrat-Regular.ttf
+      - family: MontserratSemiBold
+        fonts:
+          - asset: fonts/Montserrat-SemiBold.ttf
+      - family: MontserratThin
+        fonts:
+          - asset: fonts/Montserrat-Thin.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
