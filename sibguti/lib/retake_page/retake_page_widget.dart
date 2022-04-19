@@ -1,96 +1,80 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:sibguti/data/schedule.dart';
-import 'package:sibguti/schedule_page/schedule_page_widget_model.dart';
-import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
+import 'package:sibguti/data/retake.dart';
+import 'package:sibguti/retake_page/retake_page_widget_model.dart';
+import '../data/news.dart';
+import '../open_news_page/open_news_page_widget.dart';
 
-import '../retake_page/retake_page_widget.dart';
-
-class SchedulePageWidget extends StatefulWidget {
-  const SchedulePageWidget({Key? key}) : super(key: key);
+class RetakePageWidget extends StatefulWidget {
+  const RetakePageWidget({Key? key}) : super(key: key);
 
   @override
-  State<SchedulePageWidget> createState() => _SchedulePageWidgetState();
+  State<RetakePageWidget> createState() => _RetakePageWidgetState();
 }
 
-class _SchedulePageWidgetState extends State<SchedulePageWidget> {
-  final _model = SchedulePageWidgetModel();
+class _RetakePageWidgetState extends State<RetakePageWidget> {
+  final _model = RetakePageWidgetModel();
   @override
   Widget build(BuildContext context) {
-    return SchedulePageWidgetModelProvider(
-        model: _model, child: const _SchedulePageWidgetBody());
+    return RetakePageWidgetModelProvider(
+        model: _model, child: const _RetakePageWidgetBody());
   }
 }
 
-class _SchedulePageWidgetBody extends StatelessWidget {
-  const _SchedulePageWidgetBody({Key? key}) : super(key: key);
+class _RetakePageWidgetBody extends StatelessWidget {
+  const _RetakePageWidgetBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: _ScheduleWidgetBody(),
+      body: _RetakeWidgetBody(),
       backgroundColor: Colors.white,
     );
   }
 }
 
-class _ScheduleWidgetBody extends StatefulWidget {
-  const _ScheduleWidgetBody({Key? key}) : super(key: key);
+class _RetakeWidgetBody extends StatelessWidget {
+  const _RetakeWidgetBody({Key? key}) : super(key: key);
 
-  @override
-  State<_ScheduleWidgetBody> createState() => __ScheduleWidgetBodyState();
-}
-
-class __ScheduleWidgetBodyState extends State<_ScheduleWidgetBody> {
-  DateTime _selectedValue = DateTime.now();
   @override
   Widget build(BuildContext context) {
-    final _model = SchedulePageWidgetModelProvider.read(context)?.model;
     return Column(
-      children: <Widget>[
-        const _ScheduleWidget(),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.grey.shade300,
-                  blurRadius: 1.0,
-                  offset: const Offset(0.0, 3.0))
-            ],
-          ),
-          height: 100,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              DatePicker(
-                DateTime.now(),
-                locale: "ru",
-                width: 50,
-                height: 76,
-                initialSelectedDate: DateTime.now(),
-                selectionColor: Colors.blue.shade900,
-                selectedTextColor: Colors.white,
-                onDateChange: (date) {
-                  _model?.daySelected = date.weekday;
-                  setState(() {
-                    _selectedValue = date;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-        Expanded(
+      children: const <Widget>[
+        _RetakeWidget(),
+        Flexible(
           child: SingleChildScrollView(
-              padding: const EdgeInsets.all(0),
-              child: _ScheduleBuilderWidget(
-                model: _model,
-                daySelected: _selectedValue.weekday,
-              )),
+              physics: ScrollPhysics(), child: _ScheduleBuilderWidget()),
         ),
       ],
+    );
+  }
+}
+
+class _RetakeWidget extends StatelessWidget {
+  const _RetakeWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:
+          const EdgeInsets.only(left: 25.0, right: 25.0, top: 50, bottom: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            "Пересдачи",
+            style: TextStyle(
+                fontFamily: 'MontserratBold',
+                color: Colors.orange.shade900,
+                fontSize: 32,
+                fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -98,16 +82,13 @@ class __ScheduleWidgetBodyState extends State<_ScheduleWidgetBody> {
 class _ScheduleBuilderWidget extends StatelessWidget {
   const _ScheduleBuilderWidget({
     Key? key,
-    required SchedulePageWidgetModel? model,
-    required this.daySelected,
-  })  : _model = model,
-        super(key: key);
-  final int daySelected;
-  final SchedulePageWidgetModel? _model;
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Schedule>>(
+    final _model = RetakePageWidgetModelProvider.read(context)?.model;
+
+    return FutureBuilder<List<Retake>>(
       future: _model?.newsItems,
       builder: (BuildContext context, AsyncSnapshot snapshot) {
         if (!snapshot.hasData) {
@@ -145,53 +126,18 @@ class _ScheduleBuilderWidget extends StatelessWidget {
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
             //Добавлены изменения
-            var k = 0;
             var data = snapshot.data[index];
-            for (int i = 0; i < snapshot.data.length; i++) {
-              if (int.parse(snapshot.data[i].day_week) == _model?.daySelected) {
-                k++;
-                if (int.parse(snapshot.data[i].number) == index) {
-                  var data = snapshot.data[i];
-
-                  return _ScheduleItemWidget(
-                    auditorium: data.auditorium,
-                    day_week: data.day_week,
-                    lecture: data.lecture,
-                    name: data.name,
-                    number_group: data.number_group,
-                    number: data.number,
-                    teacher: data.teacher,
-                    first_color: Colors.blue.shade800,
-                    last_color: Colors.blue.shade900,
-                  );
-                }
-              }
-            }
-            if (k == 0) {
-              return Container(
-                width: double.infinity,
-                height: 440,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Image.asset("assets/non_image.png"),
-                    ),
-                    Text(
-                      "Нет пар",
-                      style: TextStyle(
-                          fontFamily: 'MontserratBold',
-                          color: Colors.blue.shade500,
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const SizedBox();
+            return _ScheduleItemWidget(
+              id: data.id,
+              number: data.number,
+              name: data.name,
+              auditorium: data.auditorium,
+              number_group: data.number_group,
+              teacher: data.teacher,
+              date_retake: data.date_retake,
+              first_color: Colors.orange.shade700,
+              last_color: Colors.red,
+            );
           },
         );
       },
@@ -199,65 +145,26 @@ class _ScheduleBuilderWidget extends StatelessWidget {
   }
 }
 
-class _ScheduleWidget extends StatelessWidget {
-  const _ScheduleWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding:
-          const EdgeInsets.only(left: 25.0, right: 25.0, top: 50, bottom: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            "Расписание",
-            style: TextStyle(
-                fontFamily: 'MontserratBold',
-                color: Colors.blue.shade900,
-                fontSize: 32,
-                fontWeight: FontWeight.bold),
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const RetakePageWidget()));
-            },
-            icon: Icon(
-              CupertinoIcons.bell,
-              size: 24,
-              color: Colors.blue.shade900,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ScheduleItemWidget extends StatelessWidget {
-  final number;
-  final name;
-  final auditorium;
-  final lecture;
-  final number_group;
-  final teacher;
-  final day_week;
+  final String id;
+  final String number;
+  final String name;
+  final String auditorium;
+  final String number_group;
+  final String teacher;
+  final String date_retake;
   final first_color;
   final last_color;
 
   const _ScheduleItemWidget({
     Key? key,
+    required this.id,
     required this.number,
     required this.name,
     required this.auditorium,
-    required this.lecture,
     required this.number_group,
     required this.teacher,
-    required this.day_week,
+    required this.date_retake,
     required this.first_color,
     required this.last_color,
   }) : super(key: key);
@@ -301,8 +208,6 @@ class _ScheduleItemWidget extends StatelessWidget {
                     colors: [
                       first_color,
                       last_color,
-                      // Colors.blue.shade800,
-                      // Colors.blue.shade900,
                     ],
                   ),
                   borderRadius: const BorderRadius.all(Radius.circular(8))),
@@ -350,7 +255,7 @@ class _ScheduleItemWidget extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      lecture,
+                      date_retake,
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontFamily: 'MontserratRegular',

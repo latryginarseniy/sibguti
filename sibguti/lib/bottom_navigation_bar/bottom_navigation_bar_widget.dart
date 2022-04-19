@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sibguti/course_page/course_page_widget.dart';
 
+import '../news_page/news_page_widget.dart';
 import '../schedule_page/schedule_page_widget.dart';
+import '../university_page/university_page_widget.dart';
 
 class BottomNavigationBarWidget extends StatefulWidget {
   const BottomNavigationBarWidget({Key? key}) : super(key: key);
@@ -16,9 +19,9 @@ class _BottonNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     SchedulePageWidget(),
-    Text('Новости'),
-    Text('Курсы'),
-    Text('Университет'),
+    NewsPageWidget(),
+    CoursePageWidget(),
+    UniversityPageWidget(),
   ];
 
   void _onItemTapped(int index) {
@@ -57,11 +60,11 @@ class _BottonNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
           ),
           BottomNavigationBarItem(
               icon: const Icon(
-                CupertinoIcons.square_list,
+                CupertinoIcons.news_solid,
                 color: Colors.grey,
               ),
               activeIcon: Icon(
-                CupertinoIcons.square_list_fill,
+                CupertinoIcons.news_solid,
                 color: Colors.blue.shade900,
               ),
               label: 'Новости'),
